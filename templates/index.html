@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oregon License Plate Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 40px;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .generator-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            align-items: start;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel h3 {
+            color: #495057;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .plate-text-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+            letter-spacing: 3px;
+        }
+
+        .plate-text-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .format-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #0056b3;
+            border-left: 4px solid #007bff;
+            margin-top: 15px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #218838, #1ba085);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-section h3 {
+            color: #495057;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+        }
+
+        .plate-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin-bottom: 25px;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: all 0.3s ease;
+        }
+
+        .plate-preview:hover {
+            transform: perspective(1000px) rotateX(0deg) scale(1.02);
+        }
+
+        .plate-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .placeholder-text {
+            color: #6c757d;
+            font-style: italic;
+            padding: 60px 20px;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .download-section {
+            text-align: center;
+        }
+
+        .download-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(45deg, #0056b3, #004085);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .instructions h4 {
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .generator-section {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .plate-text-input {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Oregon License Plate Generator</h1>
+        
+        <div class="instructions">
+            <h4>📋 Instructions:</h4>
+            <ul>
+                <li>Enter your desired plate text (up to 7 characters)</li>
+                <li>Click "Generate Plate" to create your custom Oregon license plate</li>
+                <li>Download the high-quality image when ready</li>
+                <li>Oregon format examples: "ABC 123", "123 ABC", "OREGON", etc.</li>
+            </ul>
+        </div>
+        
+        <div class="generator-section">
+            <div class="control-panel">
+                <h3>🎯 Plate Configuration</h3>
+                
+                <div class="input-group">
+                    <label for="plateText">License Plate Text:</label>
+                    <input type="text" id="plateText" class="plate-text-input" 
+                           placeholder="ABC 123" maxlength="7" autocomplete="off">
+                    <div class="format-info">
+                        💡 Enter up to 7 characters. Common Oregon formats: ABC 123, 123 ABC, SAMPLE, etc.
+                    </div>
+                </div>
+                
+                <button id="generateBtn" class="generate-btn">
+                    🎨 Generate Plate
+                </button>
+                
+                <div id="errorDiv" class="error"></div>
+                <div id="successDiv" class="success"></div>
+            </div>
+            
+            <div class="preview-section">
+                <h3>🖼️ Live Preview</h3>
+                
+                <div class="plate-preview">
+                    <div id="plateDisplay">
+                        <div class="placeholder-text">
+                            Enter text and click "Generate Plate" to see your custom Oregon license plate
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loadingDiv">
+                    <div class="spinner"></div>
+                    <span style="margin-left: 15px;">Generating your plate...</span>
+                </div>
+                
+                <div class="download-section" id="downloadSection" style="display: none;">
+                    <button id="downloadBtn" class="download-btn">
+                        📥 Download PNG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PlateGenerator {
+            constructor() {
+                this.plateText = document.getElementById('plateText');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                this.plateDisplay = document.getElementById('plateDisplay');
+                this.loadingDiv = document.getElementById('loadingDiv');
+                this.downloadSection = document.getElementById('downloadSection');
+                this.errorDiv = document.getElementById('errorDiv');
+                this.successDiv = document.getElementById('successDiv');
+                
+                this.currentImageData = null;
+                this.currentText = '';
+                
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                this.generateBtn.addEventListener('click', () => this.generatePlate());
+                this.downloadBtn.addEventListener('click', () => this.downloadPlate());
+                
+                // Generate on Enter key
+                this.plateText.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.generatePlate();
+                    }
+                });
+                
+                // Auto-uppercase and format input
+                this.plateText.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+            }
+            
+            showError(message) {
+                this.errorDiv.textContent = message;
+                this.errorDiv.style.display = 'block';
+                this.successDiv.style.display = 'none';
+                setTimeout(() => {
+                    this.errorDiv.style.display = 'none';
+                }, 5000);
+            }
+            
+            showSuccess(message) {
+                this.successDiv.textContent = message;
+                this.successDiv.style.display = 'block';
+                this.errorDiv.style.display = 'none';
+                setTimeout(() => {
+                    this.successDiv.style.display = 'none';
+                }, 3000);
+            }
+            
+            async generatePlate() {
+                const text = this.plateText.value.trim();
+                
+                if (!text) {
+                    this.showError('Please enter some text for your license plate');
+                    return;
+                }
+                
+                if (text.length > 7) {
+                    this.showError('License plate text cannot exceed 7 characters');
+                    return;
+                }
+                
+                // Show loading
+                this.loadingDiv.style.display = 'flex';
+                this.generateBtn.disabled = true;
+                this.downloadSection.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            plate_type: 'standard'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Display the generated plate
+                        this.plateDisplay.innerHTML = `<img src="${data.image}" alt="Generated Oregon License Plate" style="max-width: 100%; height: auto;">`;
+                        this.currentImageData = data.image;
+                        this.currentText = text;
+                        this.downloadSection.style.display = 'block';
+                        this.showSuccess('License plate generated successfully!');
+                    } else {
+                        this.showError(data.error || 'Failed to generate license plate');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showError('Network error. Please check your connection and try again.');
+                } finally {
+                    // Hide loading
+                    this.loadingDiv.style.display = 'none';
+                    this.generateBtn.disabled = false;
+                }
+            }
+            
+            async downloadPlate() {
+                if (!this.currentText) {
+                    this.showError('Please generate a plate first');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/download/${encodeURIComponent(this.currentText)}`);
+                    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `oregon_plate_${this.currentText}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        this.showSuccess('License plate downloaded successfully!');
+                    } else {
+                        this.showError('Failed to download the plate');
+                    }
+                    
+                } catch (error) {
+                    console.error('Download error:', error);
+                    this.showError('Failed to download the plate');
+                }
+            }
+        }
+        
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new PlateGenerator();
+        });
+    </script>
+</body>
+</html>
